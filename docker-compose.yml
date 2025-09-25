@@ -1,0 +1,19 @@
+services:
+  branchesapi:
+    image: branches-api--dev:latest
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8017:8080"
+    container_name: branches-api-dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      carenest-network:
+        ipv4_address: 192.168.0.19
+
+networks:
+  carenest-network:
+    external: true
