@@ -19,9 +19,15 @@ namespace CareNest_Branches.Application.Features.Queries.GetAllPaging
             var selector = ObjectMapperExtensions.CreateMapExpression<Branches, BranchesResponse>();
 
             var orderByFunc = GetOrderByFunc(query.SortColumn, query.SortDirection);
+            // Thêm điều kiện lọc theo ShopId nếu có
+            System.Linq.Expressions.Expression<Func<Branches, bool>>? predicate = null;
+            if (!string.IsNullOrWhiteSpace(query.ShopId))
+            {
+                predicate = s => s.ShopId == query.ShopId;
+            }
 
             IEnumerable<BranchesResponse> a = await _unitOfWork.GetRepository<Branches>().FindAsync(
-                predicate: null,
+                predicate: predicate,
                 orderBy: orderByFunc,
                 selector: selector,
                 pageSize: query.PageSize,

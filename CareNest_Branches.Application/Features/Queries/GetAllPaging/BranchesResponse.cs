@@ -1,6 +1,4 @@
-﻿using CareNest_Branches.Domain.Commons.Enum;
-
-namespace CareNest_Branches.Application.Features.Queries.GetAllPaging
+﻿namespace CareNest_Branches.Application.Features.Queries.GetAllPaging
 {
     public class BranchesResponse
     {

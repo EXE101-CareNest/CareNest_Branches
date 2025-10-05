@@ -38,14 +38,16 @@ namespace CareNest_Branches.API.Controllers
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? sortColumn = null,
-            [FromQuery] string? sortDirection = "asc")
+            [FromQuery] string? sortDirection = "asc",
+            [FromQuery] string? shopId = null)
         {
             var query = new GetAllPagingQuery()
             {
                 Index = pageIndex,
                 PageSize = pageSize,
                 SortColumn = sortColumn,
-                SortDirection = sortDirection
+                SortDirection = sortDirection,
+                ShopId = shopId
             };
             var result = await _dispatcher.DispatchQueryAsync<GetAllPagingQuery, PageResult<BranchesResponse>>(query);
             return this.OkResponse(result, MessageConstant.SuccessGet);

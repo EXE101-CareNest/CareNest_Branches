@@ -1,7 +1,5 @@
 ﻿using CareNest_Branches.Application.Features.Commands.Create;
 using CareNest_Branches.Application.Features.Commands.Update;
-using CareNest_Branches.Domain.Commons.Constant;
-using System.Text.RegularExpressions;
 
 namespace CareNest_Branches.Application.Exceptions.Validators
 {
@@ -35,8 +33,8 @@ namespace CareNest_Branches.Application.Exceptions.Validators
         //    {
         //        throw new BadRequestException(MessageConstant.MissingPaymentMethod);
         //    }
-          
+
         //}
-        
+
     }
 }

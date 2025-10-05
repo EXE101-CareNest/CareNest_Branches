@@ -1,5 +1,4 @@
 ﻿using CareNest_Branches.Application.Interfaces.CQRS.Commands;
-using CareNest_Branches.Domain.Commons.Enum;
 using CareNest_Branches.Domain.Entitites;
 
 namespace CareNest_Branches.Application.Features.Commands.Create

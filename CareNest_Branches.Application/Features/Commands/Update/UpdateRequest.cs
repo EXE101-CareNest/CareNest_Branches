@@ -1,6 +1,4 @@
-﻿using CareNest_Branches.Domain.Commons.Enum;
-
-namespace CareNest_Branches.Application.Features.Commands.Update
+﻿namespace CareNest_Branches.Application.Features.Commands.Update
 {
     public class UpdateRequest
     {
