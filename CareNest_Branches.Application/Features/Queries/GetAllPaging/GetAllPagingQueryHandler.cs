@@ -33,7 +33,7 @@ namespace CareNest_Branches.Application.Features.Queries.GetAllPaging
                 pageSize: query.PageSize,
                 pageIndex: query.Index);
 
-            return new PageResult<BranchesResponse>(a, 1, query.PageSize, query.Index);
+            return new PageResult<BranchesResponse>(a, 1, query.Index, query.PageSize);
         }
 
 
