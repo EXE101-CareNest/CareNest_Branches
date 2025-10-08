@@ -101,22 +101,6 @@ builder.Services.Configure<JwtSettings>(
 );
 
 
-//Đăng ký cho FE
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins(
-                "http://localhost:5173"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-        });
-});
 
 // Đăng ký cấu hình APIServiceOption
 builder.Services.Configure<APIServiceOption>(
@@ -134,12 +118,22 @@ builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
 });
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
 
 
 
 var app = builder.Build();
-
+app.UseCors("AllowAll");s
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
