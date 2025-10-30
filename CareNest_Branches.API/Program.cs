@@ -35,15 +35,19 @@ dbSettings.Display();
 string connectionString = dbSettings!.GetConnectionString();
 
 
-// Đăng ký DbContext với PostgreSQL
+// Đăng ký DbContext với PostgreSQL Pooling + Timeout phục vụ cho Koyeb
 builder.Services.AddDbContext<DatabaseContext>(options =>
-    options.UseNpgsql(connectionString, npgsqlOptions =>
-    {
-        npgsqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(5),
-            errorCodesToAdd: null);
-    }));
+    options.UseNpgsql(
+        connectionString + ";Pooling=true;Maximum Pool Size=5;Minimum Pool Size=0;Timeout=15;",
+        npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorCodesToAdd: null);
+            // Có thể nâng timeout nếu cần
+            // npgsqlOptions.CommandTimeout(60);
+        }));
 
 builder.Services.AddTransient<DatabaseSeeder>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -134,16 +138,24 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+
+// Cho phép bật Swagger ở Development hoặc khi cấu hình Swagger:Enabled=true
+var swaggerEnabled = app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swagger:Enabled");
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Chỉ migrate khi RUN_MIGRATIONS=true (ENV) để phù hợp chuẩn Koyeb
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    context.Database.Migrate();
+    var runMigrations = Environment.GetEnvironmentVariable("RUN_MIGRATIONS");
+    if (!string.IsNullOrWhiteSpace(runMigrations) && runMigrations.Equals("true", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Database.Migrate();
+    }
 }
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
