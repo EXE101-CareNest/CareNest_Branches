@@ -33,19 +33,15 @@ builder.Services.AddHttpContextAccessor();
 // DatabaseSettings dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
 // dbSettings.Display();
 // string connectionString = dbSettings!.GetConnectionString();
-// Ưu tiên lấy config DB từ biến môi trường cho cloud/Koyeb
+// Ưu tiên lấy config DB từ env cho cloud/Koyeb, fallback cho local/dev
 var config = builder.Configuration;
 DatabaseSettings dbSettings = new DatabaseSettings
 {
-    Ip = config["DB_HOST"] ?? config["DatabaseSettings:Ip"],
-    Port = int.TryParse(config["DB_PORT"], out var port) ? port : (config.GetSection("DatabaseSettings").GetValue<int?>("Port") ?? 5432),
-    User = config["DB_USER"] ?? config["DatabaseSettings:User"],
+    Ip       = config["DB_HOST"] ?? config["DatabaseSettings:Ip"],
+    Port     = int.TryParse(config["DB_PORT"], out var port) ? port : (config.GetSection("DatabaseSettings").GetValue<int?>("Port") ?? 5432),
+    User     = config["DB_USER"] ?? config["DatabaseSettings:User"],
     Password = config["DB_PASSWORD"] ?? config["DatabaseSettings:Password"],
-    Database = config["DB_NAME"] ?? config["DatabaseSettings:Database"],
-    Pooling = true,
-    MaximumPoolSize = 5,
-    MinimumPoolSize = 0,
-    Timeout = 15
+    Database = config["DB_NAME"] ?? config["DatabaseSettings:Database"]
 };
 dbSettings.Display();
 string connectionString = dbSettings.GetConnectionString();
