@@ -30,10 +30,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 // Lấy DatabaseSettings từ configuration
-DatabaseSettings dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
+// DatabaseSettings dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
+// dbSettings.Display();
+// string connectionString = dbSettings!.GetConnectionString();
+// Ưu tiên lấy config DB từ biến môi trường cho cloud/Koyeb
+var config = builder.Configuration;
+DatabaseSettings dbSettings = new DatabaseSettings
+{
+    Ip = config["DB_HOST"] ?? config["DatabaseSettings:Ip"],
+    Port = int.TryParse(config["DB_PORT"], out var port) ? port : (config.GetSection("DatabaseSettings").GetValue<int?>("Port") ?? 5432),
+    User = config["DB_USER"] ?? config["DatabaseSettings:User"],
+    Password = config["DB_PASSWORD"] ?? config["DatabaseSettings:Password"],
+    Database = config["DB_NAME"] ?? config["DatabaseSettings:Database"],
+    Pooling = true,
+    MaximumPoolSize = 5,
+    MinimumPoolSize = 0,
+    Timeout = 15
+};
 dbSettings.Display();
-string connectionString = dbSettings!.GetConnectionString();
-
+string connectionString = dbSettings.GetConnectionString();
 
 // Đăng ký DbContext với PostgreSQL Pooling + Timeout phục vụ cho Koyeb
 builder.Services.AddDbContext<DatabaseContext>(options =>
