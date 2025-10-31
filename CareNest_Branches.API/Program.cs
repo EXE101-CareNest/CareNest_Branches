@@ -121,6 +121,10 @@ builder.Services.Configure<JwtSettings>(
 builder.Services.Configure<APIServiceOption>(
     builder.Configuration.GetSection("APIService")
 );
+
+// Log nhanh giá trị APIService:BaseUrlShop sau khi bind để kiểm tra env vs appsettings
+var apiBaseUrlShop = builder.Configuration["APIService:BaseUrlShop"];
+Console.WriteLine($"APIService:BaseUrlShop = {apiBaseUrlShop}");
 //Đăng ký lấy thông tin từ token
 builder.Services.AddHttpClient<IAPIService, APIService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
