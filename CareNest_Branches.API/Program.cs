@@ -33,16 +33,35 @@ builder.Services.AddHttpContextAccessor();
 // DatabaseSettings dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
 // dbSettings.Display();
 // string connectionString = dbSettings!.GetConnectionString();
-// Ưu tiên lấy config DB từ env cho cloud/Koyeb, fallback cho local/dev
+// Chỉ dùng DATABASE_URL (postgres://user:pass@host:port/db); nếu không có thì dùng appsettings
 var config = builder.Configuration;
-DatabaseSettings dbSettings = new DatabaseSettings
+DatabaseSettings dbSettings;
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrWhiteSpace(databaseUrl))
 {
-    Ip       = config["DB_HOST"] ?? config["DatabaseSettings:Ip"],
-    Port     = int.TryParse(config["DB_PORT"], out var port) ? port : (config.GetSection("DatabaseSettings").GetValue<int?>("Port") ?? 5432),
-    User     = config["DB_USER"] ?? config["DatabaseSettings:User"],
-    Password = config["DB_PASSWORD"] ?? config["DatabaseSettings:Password"],
-    Database = config["DB_NAME"] ?? config["DatabaseSettings:Database"]
-};
+    try
+    {
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':', 2);
+        dbSettings = new DatabaseSettings
+        {
+            Ip = uri.Host,
+            Port = uri.IsDefaultPort ? 5432 : uri.Port,
+            User = userInfo.Length > 0 ? userInfo[0] : string.Empty,
+            Password = userInfo.Length > 1 ? userInfo[1] : string.Empty,
+            Database = uri.AbsolutePath.TrimStart('/')
+        };
+    }
+    catch
+    {
+        // Nếu parse lỗi, fallback appsettings
+        dbSettings = config.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
+    }
+}
+else
+{
+    dbSettings = config.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
+}
 dbSettings.Display();
 string connectionString = dbSettings.GetConnectionString();
 
